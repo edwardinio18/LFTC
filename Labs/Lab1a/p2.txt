@@ -1,6 +1,6 @@
 // Verify if a number is prime, compute gcd of 2 numbers, compute the solutions for a 2nd order equation
 
-// Verify if a number if prime
+// Verify if a number is prime
 cvnou €x: intreg;
 citeste(€x);
 cvnou €i: intreg;
