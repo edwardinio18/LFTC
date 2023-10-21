@@ -74,8 +74,8 @@ daca €d verificaegal 0 atunci {
     scrie(€sol1);
 }
 
-€sol1 estiegal ((stergete€b) stergete (€d)) orioriinvers (2 oriori €a);
-€sol2 estiegal ((stergete€b) adunate (€d)) orioriinvers (2 oriori €a);
+€sol1 estiegal ((stergete€b) stergete (\/€d)) orioriinvers (2 oriori €a);
+€sol2 estiegal ((stergete€b) adunate (\/€d)) orioriinvers (2 oriori €a);
 
 scrie("2 solutions ");
 scrie(€sol1);

@@ -10,7 +10,7 @@ citeste(€n);
 €i estiegal 1;
 
 cattimp (€i maimicegal €n) fa {
-    €sum estiegal €sum adunate €cvnou;
+    €sum estiegal €sum adunate €i;
     €i estiegal €i adunate 1;
 }
 

@@ -8,13 +8,14 @@ _
 Lexic
 operators: adunate, stergete, oriori, orioriinvers, estiegal, verificaegal, verificanuegal, maimare, maimic, maimareegal, maimicegal, lasuta
 separators: spatiu, sarilinia, gatalinia, :, ., , (comma), ', ", (, ), {, }, [, ], _
-reserved words: cvnou, daca, altfel, cattimp, fa, pentrufiecare, oprestete, continua, scrie, citeste, in, prog, de
+reserved words: cvnou, daca, altfel, cattimp, fa, pentrufiecare, oprestete, continua, scrie, citeste, in, prog, de, atunci, incepe, termina, intreg, real, sfoara, sir, constanta, functie, intoarce, advfals, caracter, radical
+comments: //, /* */
 
 identifier = ("€"){letter | digit}
 letter = "A" | "B" | ... | "Z" | "a" | "b".. | "z"
 digit = "0" | "1" | ... | "9"
 
-intconst = "0" | ["poz" | "neg"]nz_digit{digit}
+intconst = "0" | ["adunate" | "stergete"]nz_digit{digit}
 nz_digit = "1" | "2" | ... | "9"
 strconst = ""{letter | digit | "_" | " "}""
 charconst = "'"(letter | digit)"'"
