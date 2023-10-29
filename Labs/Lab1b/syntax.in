@@ -30,11 +30,11 @@ expression ::= expression "adunate" term | term
 
 term ::= term "oriori" factor | factor
 
-factor ::= "(" expression ")" | IDENTIFIER
+factor ::= "(" expression ")" | IDENTIFIER | constanta
 
 iostmt ::= "citeste" | "scrie" "(" IDENTIFIER ")"
 
-structstmt ::= cmpdstmt | ifstmt | whilestmt
+structstmt ::= cmpdstmt | ifstmt | whilestmt | forstmt | foreachstmt
 
 ifstmt ::= "daca" "(" condition ")" "atunci" "{" stmt "}" ["altfel" "{" stmt "}"]
 
