@@ -272,7 +272,8 @@ class Scanner
         foreach ($this->reservedWords as $reservedToken) {
             if ($possibleToken == $reservedToken) {
                 $this->index += strlen($reservedToken);
-                $this->PIF[] = [$reservedToken, -1];
+                $position = $this->getPositionInFile($reservedToken);
+                $this->PIF[] = [$reservedToken, $position];
                 return true;
             } else if (str_starts_with($possibleToken, $reservedToken)) {
                 $regex = "/^[a-zA-Z0-9_]*" . preg_quote($reservedToken, '/') . "[a-zA-Z0-9_]+/";
@@ -282,7 +283,8 @@ class Scanner
                 }
 
                 $this->index += strlen($reservedToken);
-                $this->PIF[] = [$reservedToken, -1];
+                $position = $this->getPositionInFile($reservedToken);
+                $this->PIF[] = [$reservedToken, $position];
                 return true;
             }
         }
@@ -290,11 +292,13 @@ class Scanner
         foreach ($this->tokens as $token) {
             if ($token == $possibleToken) {
                 $this->index += strlen($token);
-                $this->PIF[] = [$token, -1];
+                $position = $this->getPositionInFile($token);
+                $this->PIF[] = [$token, $position];
                 return true;
             } elseif (str_starts_with($possibleToken, $token)) {
                 $this->index += strlen($token);
-                $this->PIF[] = [$token, -1];
+                $position = $this->getPositionInFile($token);
+                $this->PIF[] = [$token, $position];
                 return true;
             }
         }
@@ -376,6 +380,19 @@ class Scanner
             echo "Lexically correct\n";
         } catch (Exception|ScannerException $e) {
             echo $e->getMessage() . "\n";
+        }
+    }
+
+    public function getPositionInFile(string $value)
+    {
+        $file = fopen("token.in", "r");
+        $lineNumber = 0;
+
+        while (($line = fgets($file)) !== false) {
+            $lineNumber++;
+            if (str_contains($line, $value)) {
+                return $lineNumber;
+            }
         }
     }
 }
