@@ -272,8 +272,7 @@ class Scanner
         foreach ($this->reservedWords as $reservedToken) {
             if ($possibleToken == $reservedToken) {
                 $this->index += strlen($reservedToken);
-                $position = $this->getPositionInFile($reservedToken);
-                $this->PIF[] = [$reservedToken, $position];
+                $this->PIF[] = [$reservedToken, -1];
                 return true;
             } else if (str_starts_with($possibleToken, $reservedToken)) {
                 $regex = "/^[a-zA-Z0-9_]*" . preg_quote($reservedToken, '/') . "[a-zA-Z0-9_]+/";
@@ -283,8 +282,7 @@ class Scanner
                 }
 
                 $this->index += strlen($reservedToken);
-                $position = $this->getPositionInFile($reservedToken);
-                $this->PIF[] = [$reservedToken, $position];
+                $this->PIF[] = [$reservedToken, -1];
                 return true;
             }
         }
@@ -292,13 +290,11 @@ class Scanner
         foreach ($this->tokens as $token) {
             if ($token == $possibleToken) {
                 $this->index += strlen($token);
-                $position = $this->getPositionInFile($token);
-                $this->PIF[] = [$token, $position];
+                $this->PIF[] = [$token, -1];
                 return true;
             } elseif (str_starts_with($possibleToken, $token)) {
                 $this->index += strlen($token);
-                $position = $this->getPositionInFile($token);
-                $this->PIF[] = [$token, $position];
+                $this->PIF[] = [$token, -1];
                 return true;
             }
         }
@@ -381,30 +377,5 @@ class Scanner
         } catch (Exception|ScannerException $e) {
             echo $e->getMessage() . "\n";
         }
-    }
-
-    /**
-     * Get the line number at which a specific value is found in a file.
-     *
-     * @param string $value The value to search for in the file.
-     *
-     * @return int The line number (1-based) where the value is found. If not found, returns -1.
-     */
-    public function getPositionInFile(string $value): int
-    {
-        $file = fopen("token.in", "r");
-        $lineNumber = 0;
-
-        while (($line = fgets($file)) !== false) {
-            $lineNumber++;
-            if (str_contains($line, $value)) {
-                fclose($file);
-                return $lineNumber;
-            }
-        }
-
-        fclose($file);
-
-        return -1;
     }
 }
