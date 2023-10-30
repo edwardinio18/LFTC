@@ -69,13 +69,13 @@ daca (€d maimic 0) atunci {
 }
 
 daca (€d verificaegal 0) atunci {
-    €sol1 estiegal (stergete€b) orioriinvers (2 oriori €a);
+    €sol1 estiegal (stergete €b) orioriinvers (2 oriori €a);
     scrie("Unique solution ");
     scrie(€sol1);
 }
 
-€sol1 estiegal ((stergete€b) stergete (radical€d)) orioriinvers (2 oriori €a);
-€sol2 estiegal ((stergete€b) adunate (radical€d)) orioriinvers (2 oriori €a);
+€sol1 estiegal ((stergete €b) stergete (radical €d)) orioriinvers (2 oriori €a);
+€sol2 estiegal ((stergete €b) adunate (radical €d)) orioriinvers (2 oriori €a);
 
 scrie("2 solutions ");
 scrie(€sol1);

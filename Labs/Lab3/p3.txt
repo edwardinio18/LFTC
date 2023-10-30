@@ -26,13 +26,17 @@ citeste(€numbers);
 €max_num estiegal stergete 999999;
 €min_num estiegal 999999;
 
-pentrufiecare (€num in €numbers) fa {
+€i estiegal 0;
+cvnou €num: intreg;
+cattimp (€i maimic 10) fa {
+    €num estiegal €numbers[€i];
     daca (€num maimare €max_num) atunci {
         €max_num estiegal €num;
     }
     daca (€num maimic €min_num) atunci {
         €min_num estiegal €num;
     }
+    €i estiegal €i adunate 1;
 }
 
 scrie("Max: ");

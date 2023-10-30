@@ -10,42 +10,42 @@ class Scanner
     /**
      * @var string The input program to be scanned.
      */
-    private $program;
+    private string $program;
 
     /**
      * @var array An array to store tokens from the input program.
      */
-    private $tokens;
+    private array $tokens;
 
     /**
      * @var array An array to store reserved words.
      */
-    private $reservedWords;
+    private array $reservedWords;
 
     /**
      * @var SymbolTable A symbol table to store identifiers.
      */
-    private $identifierSymbolTable;
+    private SymbolTable $identifierSymbolTable;
 
     /**
      * @var SymbolTable A symbol table to store constants.
      */
-    private $constantSymbolTable;
+    private SymbolTable $constantSymbolTable;
 
     /**
      * @var array The Program Internal Form (PIF) to store the scanned tokens.
      */
-    private $PIF;
+    private array $PIF;
 
     /**
      * @var int The current index in the input program.
      */
-    private $index = 0;
+    private int $index = 0;
 
     /**
      * @var int The current line number in the input program.
      */
-    private $currentLine = 1;
+    private int $currentLine = 1;
 
     /**
      * Scanner constructor.
@@ -69,7 +69,7 @@ class Scanner
      *
      * @param string $program The input program.
      */
-    public function setProgram($program)
+    public function setProgram(string $program): void
     {
         $this->program = $program;
     }
@@ -79,7 +79,7 @@ class Scanner
      *
      * @throws Exception If there is an error reading the tokens from the file.
      */
-    private function readTokens()
+    private function readTokens(): void
     {
         $file = "token.in";
         $lines = file($file, FILE_IGNORE_NEW_LINES);
@@ -95,7 +95,7 @@ class Scanner
     /**
      * Skip spaces and increment the current line number when encountering newline characters.
      */
-    private function skipSpaces()
+    private function skipSpaces(): void
     {
         while ($this->index < strlen($this->program) && ctype_space($this->program[$this->index])) {
             if ($this->program[$this->index] == "\n") {
@@ -108,7 +108,7 @@ class Scanner
     /**
      * Skip comments in the input program.
      */
-    private function skipComments()
+    private function skipComments(): void
     {
         $this->skipSpaces();
         while ($this->index < strlen($this->program)) {
@@ -130,9 +130,9 @@ class Scanner
      *
      * @throws ScannerException If there is an issue with the string constant.
      */
-    private function treatStringConstant()
+    private function treatStringConstant(): bool
     {
-        $regexForStringConstant = '/^"[a-zA-Z0-9_ ?:*^+=.!]"*/';
+        $regexForStringConstant = '/^"[a-zA-Z0-9_ ?:*^+=.,!;]*(?:\\\\n)?"/';
         $input = substr($this->program, $this->index);
 
         if (!preg_match($regexForStringConstant, $input, $matches)) {
@@ -158,13 +158,18 @@ class Scanner
      *
      * @return bool Returns true if a valid integer constant is found, false otherwise.
      */
-    private function treatIntConstant()
+    private function treatIntConstant(): bool
     {
         $regexForIntConstant = '/^-?\d+/';
         $matchCount = preg_match($regexForIntConstant, substr($this->program, $this->index), $matches);
 
         if (!$matchCount) {
             return false;
+        }
+
+        if ($this->PIF[count($this->PIF) - 1][0] == "stergete") {
+            array_pop($this->PIF);
+            $matches[0] = "-" . $matches[0];
         }
 
         [$position, $hashValue] = $this->getPosition($matches[0], "int");
@@ -181,10 +186,10 @@ class Scanner
      *
      * @return array An array containing code and hash value.
      */
-    private function getPosition($match, $type = "string"): array
+    private function getPosition(string $match, string $type = "string"): array
     {
         $constant = $type == "int" ? intval($match) : $match;
-        $this->index += strlen($match);
+        $this->index += is_int($constant) && $constant < 0 ? strlen($match) - 1 : strlen($match);
 
         try {
             $this->constantSymbolTable->add($constant);
@@ -203,7 +208,7 @@ class Scanner
      *
      * @return bool Returns true if the identifier is valid, false otherwise.
      */
-    private function checkIfValid($possibleIdentifier, $programSubstring)
+    private function checkIfValid(string $possibleIdentifier, string $programSubstring): bool
     {
         if (isset($this->PIF[count($this->PIF) - 1][0]) && $this->PIF[count($this->PIF) - 1][0] != "€") {
             if (in_array($possibleIdentifier, $this->reservedWords)) {
@@ -215,6 +220,10 @@ class Scanner
             return true;
         }
 
+        if (preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*: sir\((\d+)\) de (intreg|caracter|sfoara|real);/', $programSubstring)) {
+            return true;
+        }
+
         return $this->identifierSymbolTable->contains($possibleIdentifier);
     }
 
@@ -223,7 +232,7 @@ class Scanner
      *
      * @return bool Returns true if a valid identifier is found, false otherwise.
      */
-    private function treatIdentifier()
+    private function treatIdentifier(): bool
     {
         if (isset($this->PIF[count($this->PIF) - 1][0]) && $this->PIF[count($this->PIF) - 1][0] != "€") {
             return false;
@@ -256,7 +265,7 @@ class Scanner
      *
      * @return bool Returns true if a valid token is found, false otherwise.
      */
-    private function treatFromTokenList()
+    private function treatFromTokenList(): bool
     {
         $possibleToken = explode(" ", substr($this->program, $this->index))[0];
 
@@ -298,12 +307,18 @@ class Scanner
      *
      * @throws ScannerException If an invalid token is encountered.
      */
-    private function nextToken()
+    private function nextToken(): void
     {
         $this->skipComments();
 
         if ($this->index == strlen($this->program)) {
             return;
+        }
+
+        if (isset($this->PIF[count($this->PIF) - 1][0]) && $this->PIF[count($this->PIF) - 1][0] != "€" && substr($this->program, $this->index, 1) != "\"") {
+            if ($this->treatFromTokenList()) {
+                return;
+            }
         }
 
         if ($this->treatIdentifier()) {
@@ -330,9 +345,15 @@ class Scanner
      *
      * @param string $programFileName The name of the input program file.
      */
-    public function scan($programFileName)
+    public function scan(string $programFileName): void
     {
         try {
+            $this->index = 0;
+            $this->currentLine = 1;
+            $this->PIF = [];
+            $this->identifierSymbolTable = new SymbolTable(100);
+            $this->constantSymbolTable = new SymbolTable(100);
+
             $this->setProgram(file_get_contents($programFileName));
 
             while ($this->index < strlen($this->program)) {

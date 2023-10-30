@@ -5,7 +5,7 @@ require_once("Scanner.php");
 
 /**
  * Class Main
- * A class to demonstrate the usage of SymbolTable.
+ * The main application class.
  */
 class Main
 {
@@ -15,8 +15,14 @@ class Main
     public static function run(): void
     {
         $scanner = new Scanner();
-        $p1 = "p2.txt";
+        $p1 = "p1.txt";
+        $p2 = "p2.txt";
+        $p3 = "p3.txt";
+        $p1err = "p1err.txt";
         $scanner->scan($p1);
+        $scanner->scan($p2);
+        $scanner->scan($p3);
+        $scanner->scan($p1err);
     }
 }
 

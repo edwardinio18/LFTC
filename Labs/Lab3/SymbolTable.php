@@ -45,20 +45,24 @@ class SymbolTable
      * Get the position associated with a symbol.
      *
      * @param int|string $key The symbol for which to retrieve the position.
+     *
+     * @return array The position associated with the symbol.
      */
     public function getPosition(int|string $key): array
     {
         return $this->hashTable->getPosition($key);
     }
 
+    /**
+     * Checks if the hash table contains a specific key.
+     *
+     * @param int|string $key The key to check for in the hash table.
+     *
+     * @return bool True if the key is found in the hash table, false otherwise.
+     */
     public function contains(int|string $key): bool
     {
         return $this->hashTable->contains($key);
-    }
-
-    public function getHashTable()
-    {
-        return $this->hashTable;
     }
 
     /**

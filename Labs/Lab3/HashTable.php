@@ -23,7 +23,7 @@ class HashTable
     public function __construct(int $capacity)
     {
         $this->capacity = $capacity;
-        $this->hashTable = array_fill(0, $capacity, array());
+        $this->hashTable = array_fill(0, $capacity, []);
     }
 
     /**
@@ -40,32 +40,34 @@ class HashTable
      * Calculate the hash value for an integer key.
      *
      * @param int $key The key to be hashed.
+     *
      * @return int The hash value.
      */
     private function hash(int $key): int
     {
-        return $key % $this->capacity;
+        return abs($key % $this->capacity);
     }
 
     /**
      * Calculate the hash value for a string key.
      *
      * @param string $key The key to be hashed.
+     *
      * @return int The hash value.
      */
     private function hashString(string $key): int
     {
-        $hash = 193;
-        for ($i = 0; $i < strlen($key); $i++) {
-            $hash = (($hash << 2) + $hash) + ord($key[$i]);
-        }
-        return abs($hash) % $this->capacity;
+        $hash = hash('sha256', $key, true);
+        $decimalHash = gmp_init('0x' . bin2hex($hash), 16);
+        $capacity = gmp_init($this->capacity);
+        return gmp_intval(gmp_mod($decimalHash, $capacity));
     }
 
     /**
      * Check if the hash table contains a given key.
      *
      * @param int|string $key The key to search for.
+     *
      * @return bool True if the key is found, false otherwise.
      */
     public function contains(int|string $key): bool
@@ -86,6 +88,7 @@ class HashTable
      * Get the hash value for a given key.
      *
      * @param int|string $key The key to be hashed.
+     *
      * @return int The hash value.
      */
     public function getHashValue(int|string $key): int
@@ -109,14 +112,19 @@ class HashTable
     {
         $hashValue = $this->getHashValue($key);
         if ($hashValue != -1 && !$this->contains($key)) {
-            $this->hashTable[$hashValue][] = array($key, $value);
+            $this->hashTable[$hashValue][] = [$key, $value];
         }
     }
 
     /**
-     * Get the value associated with a given key.
+     * Get the position information for a specific key in the hash table.
      *
-     * @param int|string $key The key to search for.
+     * This method returns an array containing two elements: the position of the key within the hash table's bucket,
+     * and the hash value used for the key. If the key is not found in the hash table, the array contains [-1, -1].
+     *
+     * @param int|string $key The key to retrieve position information for.
+     *
+     * @return array An array containing the position and hash value, or [-1, -1] if the key is not found.
      */
     public function getPosition(int|string $key): array
     {
