@@ -117,14 +117,11 @@ class HashTable
     }
 
     /**
-     * Get the position information for a specific key in the hash table.
+     * Get the position information associated with a key in the hash table.
      *
-     * This method returns an array containing two elements: the position of the key within the hash table's bucket,
-     * and the hash value used for the key. If the key is not found in the hash table, the array contains [-1, -1].
+     * @param int|string $key The key for which to retrieve the position information.
      *
-     * @param int|string $key The key to retrieve position information for.
-     *
-     * @return array An array containing the position and hash value, or [-1, -1] if the key is not found.
+     * @return array An array containing the position information associated with the key, or an array with [-1, -1] if the key is not found.
      */
     public function getPosition(int|string $key): array
     {
@@ -133,10 +130,7 @@ class HashTable
         if ($hashValue != -1) {
             for ($i = 0; $i < count($this->hashTable[$hashValue]); $i++) {
                 if ($this->hashTable[$hashValue][$i][0] == $key) {
-                    return [
-                        $this->hashTable[$hashValue][$i][1],
-                        $hashValue,
-                    ];
+                    return $this->hashTable[$hashValue][$i];
                 }
             }
         }

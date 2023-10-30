@@ -147,9 +147,9 @@ class Scanner
 
         $stringConstant = $matches[0];
 
-        [$position, $hashValue] = $this->getPosition($stringConstant);
-
-        $this->PIF[] = [$hashValue, $position];
+        [, $nextCode] = $this->getPosition($stringConstant);
+        $position = $this->getPositionInFile("const");
+        $this->PIF[] = [$position, $nextCode];
         return true;
     }
 
@@ -172,9 +172,9 @@ class Scanner
             $matches[0] = "-" . $matches[0];
         }
 
-        [$position, $hashValue] = $this->getPosition($matches[0], "int");
-
-        $this->PIF[] = [$hashValue, $position];
+        [, $nextCode] = $this->getPosition($matches[0], "int");
+        $position = $this->getPositionInFile("const");
+        $this->PIF[] = [$position, $nextCode];
         return true;
     }
 
@@ -191,13 +191,9 @@ class Scanner
         $constant = $type == "int" ? intval($match) : $match;
         $this->index += is_int($constant) && $constant < 0 ? strlen($match) - 1 : strlen($match);
 
-        try {
-            $this->constantSymbolTable->add($constant);
-            [$code, $hashValue] = $this->constantSymbolTable->getPosition($constant);
-        } catch (Exception $e) {
-            [$code, $hashValue] = $this->constantSymbolTable->getPosition($constant);
-        }
-        return [$code, $hashValue];
+        $this->constantSymbolTable->add($constant);
+
+        return $this->constantSymbolTable->getPosition($constant);
     }
 
     /**
@@ -254,8 +250,9 @@ class Scanner
         $this->index += strlen($identifier);
 
         $this->identifierSymbolTable->add($identifier);
-        [$position, $hashValue] = $this->identifierSymbolTable->getPosition($identifier);
-        $this->PIF[] = [$hashValue, $position];
+        [, $nextCode] = $this->identifierSymbolTable->getPosition($identifier);
+        $position = $this->getPositionInFile("id");
+        $this->PIF[] = [$position, $nextCode];
 
         return true;
     }
@@ -272,7 +269,8 @@ class Scanner
         foreach ($this->reservedWords as $reservedToken) {
             if ($possibleToken == $reservedToken) {
                 $this->index += strlen($reservedToken);
-                $this->PIF[] = [$reservedToken, -1];
+                $position = $this->getPositionInFile($reservedToken);
+                $this->PIF[] = [$reservedToken, $position];
                 return true;
             } else if (str_starts_with($possibleToken, $reservedToken)) {
                 $regex = "/^[a-zA-Z0-9_]*" . preg_quote($reservedToken, '/') . "[a-zA-Z0-9_]+/";
@@ -282,7 +280,8 @@ class Scanner
                 }
 
                 $this->index += strlen($reservedToken);
-                $this->PIF[] = [$reservedToken, -1];
+                $position = $this->getPositionInFile($reservedToken);
+                $this->PIF[] = [$reservedToken, $position];
                 return true;
             }
         }
@@ -290,11 +289,13 @@ class Scanner
         foreach ($this->tokens as $token) {
             if ($token == $possibleToken) {
                 $this->index += strlen($token);
-                $this->PIF[] = [$token, -1];
+                $position = $this->getPositionInFile($token);
+                $this->PIF[] = [$token, $position];
                 return true;
             } elseif (str_starts_with($possibleToken, $token)) {
                 $this->index += strlen($token);
-                $this->PIF[] = [$token, -1];
+                $position = $this->getPositionInFile($token);
+                $this->PIF[] = [$token, $position];
                 return true;
             }
         }
@@ -377,5 +378,30 @@ class Scanner
         } catch (Exception|ScannerException $e) {
             echo $e->getMessage() . "\n";
         }
+    }
+
+    /**
+     * Get the line number at which a specific value is found in a file.
+     *
+     * @param string $value The value to search for in the file.
+     *
+     * @return int The line number (1-based) where the value is found. If not found, returns -1.
+     */
+    public function getPositionInFile(string $value): int
+    {
+        $file = fopen("token.in", "r");
+        $lineNumber = 0;
+
+        while (($line = fgets($file)) !== false) {
+            $lineNumber++;
+            if (str_contains($line, $value)) {
+                fclose($file);
+                return $lineNumber;
+            }
+        }
+
+        fclose($file);
+
+        return -1;
     }
 }
