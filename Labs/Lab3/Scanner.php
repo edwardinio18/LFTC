@@ -383,7 +383,14 @@ class Scanner
         }
     }
 
-    public function getPositionInFile(string $value)
+    /**
+     * Get the line number at which a specific value is found in a file.
+     *
+     * @param string $value The value to search for in the file.
+     *
+     * @return int The line number (1-based) where the value is found. If not found, returns -1.
+     */
+    public function getPositionInFile(string $value): int
     {
         $file = fopen("token.in", "r");
         $lineNumber = 0;
@@ -391,8 +398,13 @@ class Scanner
         while (($line = fgets($file)) !== false) {
             $lineNumber++;
             if (str_contains($line, $value)) {
+                fclose($file);
                 return $lineNumber;
             }
         }
+
+        fclose($file);
+
+        return -1;
     }
 }
