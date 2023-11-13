@@ -11,7 +11,7 @@ separators: spatiu, sarilinia, gatalinia, :, ., , (comma), ', ", (, ), {, }, [, 
 reserved words: cvnou, daca, altfel, cattimp, fa, pentrufiecare, oprestete, continua, scrie, citeste, in, prog, de, atunci, incepe, termina, intreg, real, sfoara, sir, constanta, functie, intoarce, advfals, caracter, radical
 comments: //
 
-identifier = ("€"){letter | digit}
+identifier = ("€"){letter | digit | _}
 letter = "A" | "B" | ... | "Z" | "a" | "b".. | "z"
 digit = "0" | "1" | ... | "9"
 
