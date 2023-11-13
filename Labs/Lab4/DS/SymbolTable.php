@@ -1,9 +1,12 @@
 <?php
 
-require_once("HashTable.php");
+namespace Main\DS;
+
+require_once(__DIR__ . "/HashTable.php");
 
 /**
- * Class SymbolTable
+ * SymbolTable class
+ *
  * A symbol table to store symbols and their associated positions.
  */
 class SymbolTable

@@ -1,8 +1,18 @@
 <?php
 
-require_once("ScannerException.php");
+namespace Main\Scanner;
+
+use Exception;
+use Main\DS\SymbolTable;
+use Main\FA\FA;
+
+require_once(__DIR__ . "/../DS/SymbolTable.php");
+require_once(__DIR__ . "/../FA/FA.php");
+require_once(__DIR__ . "/ScannerException.php");
 
 /**
+ * Scanner class
+ *
  * The Scanner class is responsible for scanning a program and generating a Program Internal Form (PIF).
  */
 class Scanner
@@ -81,7 +91,7 @@ class Scanner
      */
     private function readTokens(): void
     {
-        $file = "token.in";
+        $file = __DIR__ . "/../Input/token.in";
         $lines = file($file, FILE_IGNORE_NEW_LINES);
         foreach ($lines as $token) {
             if ($token != "€" && strlen($token) > 1 && $token != '\n') {
@@ -160,19 +170,20 @@ class Scanner
      */
     private function treatIntConstant(): bool
     {
-        $regexForIntConstant = '/^-?\d+/';
-        $matchCount = preg_match($regexForIntConstant, substr($this->program, $this->index), $matches);
-
-        if (!$matchCount) {
+        $fa = new FA("int_constant.in");
+        $intConstant = $fa->getNextAccepted(substr($this->program, $this->index));
+        if ($intConstant == null) {
             return false;
         }
 
+        $this->index += strlen($intConstant);
+
         if ($this->PIF[count($this->PIF) - 1][0] == "stergete") {
             array_pop($this->PIF);
-            $matches[0] = "-" . $matches[0];
+            $intConstant = "-" . $intConstant;
         }
 
-        [, $nextCode] = $this->getPosition($matches[0], "int");
+        [, $nextCode] = $this->getPosition($intConstant, "int");
         $position = $this->getPositionInFile("const");
         $this->PIF[] = [$position, $nextCode];
         return true;
@@ -189,7 +200,9 @@ class Scanner
     private function getPosition(string $match, string $type = "string"): array
     {
         $constant = $type == "int" ? intval($match) : $match;
-        $this->index += is_int($constant) && $constant < 0 ? strlen($match) - 1 : strlen($match);
+        if ($type == "string") {
+            $this->index += strlen($match);
+        }
 
         $this->constantSymbolTable->add($constant);
 
@@ -230,20 +243,17 @@ class Scanner
      */
     private function treatIdentifier(): bool
     {
-        if (isset($this->PIF[count($this->PIF) - 1][0]) && $this->PIF[count($this->PIF) - 1][0] != "€") {
+        $fa = new FA("identifier.in");
+        $identifier = $fa->getNextAccepted(substr($this->program, $this->index));
+        if ($identifier == null) {
             return false;
         }
-
-        $regexForIdentifier = '/^([a-zA-Z_][a-zA-Z0-9_]*)/';
-        preg_match($regexForIdentifier, substr($this->program, $this->index), $matches);
-
-        if (empty($matches)) {
-            return false;
-        }
-
-        $identifier = $matches[1];
 
         if (!$this->checkIfValid($identifier, substr($this->program, $this->index))) {
+            return false;
+        }
+
+        if (isset($this->PIF[count($this->PIF) - 1][0]) && $this->PIF[count($this->PIF) - 1][0] != "€") {
             return false;
         }
 
@@ -355,19 +365,21 @@ class Scanner
             $this->identifierSymbolTable = new SymbolTable(100);
             $this->constantSymbolTable = new SymbolTable(100);
 
-            $this->setProgram(file_get_contents($programFileName));
+            $file = __DIR__ . "/../Problem/" . $programFileName;
+
+            $this->setProgram(file_get_contents($file));
 
             while ($this->index < strlen($this->program)) {
                 $this->nextToken();
             }
 
-            $fileWriter = fopen("PIF" . str_replace(".txt", ".out", $programFileName), "w");
+            $fileWriter = fopen(__DIR__ . "/../Output/PIF" . str_replace(".txt", ".out", $programFileName), "w");
             foreach ($this->PIF as $pair) {
                 fwrite($fileWriter, $pair[0] . ", " . $pair[1] . "\n");
             }
             fclose($fileWriter);
 
-            $fileWriter = fopen("ST" . str_replace(".txt", ".out", $programFileName), "w");
+            $fileWriter = fopen(__DIR__ . "/../Output/ST" . str_replace(".txt", ".out", $programFileName), "w");
             fwrite($fileWriter, "Identifier Symbol Table");
             fwrite($fileWriter, $this->identifierSymbolTable);
             fwrite($fileWriter, "\n\nConstant Symbol Table");
@@ -389,7 +401,8 @@ class Scanner
      */
     public function getPositionInFile(string $value): int
     {
-        $file = fopen("token.in", "r");
+        $fileName = __DIR__ . "/../Input/token.in";
+        $file = fopen($fileName, "r");
         $lineNumber = 0;
 
         while (($line = fgets($file)) !== false) {

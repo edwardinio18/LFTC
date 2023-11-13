@@ -1,7 +1,11 @@
 <?php
 
+namespace Main\DS;
+
 /**
- * Class HashTable
+ * HashTable class
+ *
+ * A hash table implementation.
  */
 class HashTable
 {
