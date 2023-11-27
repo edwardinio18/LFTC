@@ -2,54 +2,66 @@ class Grammar:
     EPSILON = "epsilon"
 
     def __init__(self):
+        self.N = []  # non-terminals
+        self.E = []  # terminals
+        self.S = ""  # starting symbol/ axiom
+        self.P = {}  # finite set of productions
+
+    def rebuild(self):
         self.N = []
         self.E = []
         self.S = ""
         self.P = {}
 
-    def __processLine(self, line: str):
-        return line.strip().split(' ')[2:]
+    def __processLine(self, line: str, delimiter=' '):
+        elements = line.strip().strip('{}').split(delimiter)
+        if len(elements) > 1:
+            elements[0] += delimiter
+            elements[0:2] = [''.join(elements[0:2])]
+
+        return [element.strip() for element in elements if element]
 
     def read_from_file(self, file_name: str):
+        self.rebuild()
         with open(file_name) as file:
-            N = self.__processLine(file.readline())
-            E = self.__processLine(file.readline())
-            S = self.__processLine(file.readline())[0]
+            line = next(file)
+            self.N = self.__processLine(line.split('=')[1], ', ')
 
-            file.readline()
+            line = next(file)
+            self.E = self.__processLine(line[line.find('=') + 1:-1].strip(), ', ')
 
-            P = {}
-            for line in file:
-                split = line.strip().split('->')
-                source = split[0].strip()
-                sequence = split[1].lstrip(' ')
-                sequence_list = []
-                for c in sequence.split(' '):
-                    sequence_list.append(c)
+            line = next(file)
+            self.S = self.__processLine(line.split('=')[1], ', ')[0]
 
-                if source in P.keys():
-                    P[source].append(sequence_list)
-                else:
-                    P[source] = [sequence_list]
+            line = file.readline()
+            while line.strip() and ' -> ' not in line:
+                line = file.readline()
 
-            self.N = N
-            self.E = E
-            self.S = S
-            self.P = P
+            while line:
+                if ' -> ' in line:
+                    source, productions = line.split(" -> ")
+                    source = source.strip()
+                    for production in productions.split('|'):
+                        production = production.strip().replace('epsilon', Grammar.EPSILON).split()
+                        if source in self.P:
+                            self.P[source].append(production)
+                        else:
+                            self.P[source] = [production]
+                line = file.readline()
 
-    def checkCFG(self):
-        has_starting_symbol = False
+    def check_cfg(self):
+        has_tarting_symbol = False
         for key in self.P.keys():
             if key == self.S:
-                has_starting_symbol = True
-            if key not in self.N:
+                has_tarting_symbol = True
+            if key not in self.N[0].split():
                 return False
-        if not has_starting_symbol:
+        if not has_tarting_symbol:
             return False
         for production in self.P.values():
             for rhs in production:
                 for value in rhs:
-                    if value not in self.N and value not in self.E and value != Grammar.EPSILON:
+                    if value not in self.N[0].split() and value not in self.E[0].split() and value != Grammar.EPSILON:
                         return False
         return True
 

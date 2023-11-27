@@ -2,9 +2,35 @@ from Grammar import Grammar
 
 if __name__ == '__main__':
     g = Grammar()
-    g.read_from_file("g1.in")
+    file_name = "g1.txt"
+    g.read_from_file(file_name)
+
     print(str(g))
-    if g.checkCFG():
-        print("The grammar is a CFG")
+
+    base_name = file_name.split(".")[0]
+    if g.check_cfg():
+        print(f"The grammar {base_name} is a CFG\n")
     else:
-        print("The grammar is not a CFG")
+        print(f"The grammar {base_name} is not a CFG\n")
+
+    file_name = "g2.txt"
+    g.read_from_file(file_name)
+
+    print(str(g))
+
+    base_name = file_name.split(".")[0]
+    if g.check_cfg():
+        print(f"The grammar {base_name} is a CFG\n")
+    else:
+        print(f"The grammar {base_name} is not a CFG\n")
+
+    file_name = "g3.txt"
+    g.read_from_file(file_name)
+
+    print(str(g))
+
+    base_name = file_name.split(".")[0]
+    if g.check_cfg():
+        print(f"The grammar {base_name} is a CFG\n")
+    else:
+        print(f"The grammar {base_name} is not a CFG\n")
