@@ -8,6 +8,8 @@ class Parser:
         self.sequence = self.read_sequence(sequence_file)
         self.working = []
         self.input = [self.grammar.get_start_symbol()]
+        self.current_production_indices = {}
+        self.another_try_performed = False
         self.state = "q"
         self.index = 0
 
@@ -15,15 +17,20 @@ class Parser:
         Path("out").mkdir(parents=True, exist_ok=True)
         open(self.out_file, "w").close()
 
+        terminals = self.grammar.get_terminals()[0].split()
+        terminal_id_mapping = {}
+        for i, terminal in enumerate(terminals):
+            terminal_id_mapping[i + 1] = terminal
+
         seq = []
         with open(seq_file) as f:
-            if seq_file == "gram/PIF.out":
+            if seq_file == "seq/PIF.out":
                 lines = f.readlines()
                 for line in lines:
                     parts = line.split(" -> ")
                     if len(parts) == 2:
-                        token_id = parts[0].strip()
-                        seq.extend([token_id])
+                        token_id = int(parts[0].strip())
+                        seq.extend([terminal_id_mapping[token_id]])
             else:
                 line = f.readline()
                 while line:
@@ -44,9 +51,9 @@ class Parser:
         with open(self.out_file, "a") as f:
             f.write(msg)
 
-        non_terminal = self.input.pop(0)  # non_terminal = "S"
-        self.working.append((non_terminal, 0))  # self.working = [("S", 0)]
-        new_production = self.grammar.get_productions_for_non_terminal(non_terminal)[0]  # new_production = ["a", "S", "b", "S"]
+        non_terminal = self.input.pop(0)
+        self.working.append((non_terminal, 0))
+        new_production = self.grammar.get_productions_for_non_terminal(non_terminal)[0]
         self.input = new_production + self.input
 
     def advance(self):
@@ -55,8 +62,8 @@ class Parser:
         with open(self.out_file, "a") as f:
             f.write(msg)
 
-        self.working.append(self.input.pop(0))  # self.working = [("S", 0), "a"]
-        self.index += 1  # (q, i + 1, w, s)
+        self.working.append(self.input.pop(0))
+        self.index += 1
 
     def momentary_insuccess(self):
         msg = "|--- momentary insuccess\n"
@@ -64,7 +71,7 @@ class Parser:
         with open(self.out_file, "a") as f:
             f.write(msg)
 
-        self.state = "b"  # (b, i, w, s)
+        self.state = "b"
 
     def back(self):
         msg = "|--- back\n"
@@ -72,8 +79,8 @@ class Parser:
         with open(self.out_file, "a") as f:
             f.write(msg)
 
-        item = self.working.pop()  # item = "a"
-        self.input.insert(0, item)  # self.input = ["S", "a", "S", "b", "S"]
+        item = self.working.pop()
+        self.input.insert(0, item)
         self.index -= 1
 
     def success(self):
