@@ -178,4 +178,4 @@ class Scanner:
 
             print("Lexically correct")
         except (IOError, Exception) as e:
-            print(e)
+            raise Exception(e)
