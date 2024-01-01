@@ -1,7 +1,5 @@
 Sintactical rules: (file Syntax.in)
 
-program ::= "cvnou" decllist ";" cmpdstmt "."
-
 decllist ::= declaration | declaration ";" decllist
 
 declaration ::= IDENTIFIER ":" type ";"
