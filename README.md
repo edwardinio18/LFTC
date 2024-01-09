@@ -9,4 +9,4 @@ This repository contains my coursework for the LFTC (Language and Formal Techniq
 - **Additional Resources**: Relevant resources and references used throughout the course.
 
 ## License
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
